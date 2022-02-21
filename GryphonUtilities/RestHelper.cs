@@ -6,24 +6,55 @@ namespace GryphonUtilities;
 [PublicAPI]
 public static class RestHelper
 {
-    public static Task<T> CallGetMethodAsync<T>(string apiProvider, string method)
+    public static Task<TResponse> CallGetMethodAsync<TResponse>(string baseUrl, string? resource,
+        string? headerName = null, string? headerValue = null, IDictionary<string, string?>? queryParameters = null)
     {
-        return CallMethodAsync<T>(apiProvider, method);
+        return CallMethodAsync<string, TResponse>(baseUrl, resource, headerName, headerValue, queryParameters);
     }
 
-    public static Task<T> CallPostMethodAsync<T>(string apiProvider, string method)
+    public static Task<TResponse> CallPostMethodAsync<TRequest, TResponse>(string baseUrl, string? resource,
+        string? headerName = null, string? headerValue = null, TRequest? obj = null)
+        where TRequest : class
     {
-        return CallMethodAsync<T>(apiProvider, method, true);
+        return CallMethodAsync<TRequest, TResponse>(baseUrl, resource, headerName, headerValue, null, obj,
+            Method.Post);
     }
 
-    private static async Task<T> CallMethodAsync<T>(string apiProvider, string method, bool post = false)
+    private static async Task<TResponse> CallMethodAsync<TRequest, TResponse>(string baseUrl, string? resource,
+        string? headerName = null, string? headerValue = null, IDictionary<string, string?>? queryParameters = null,
+        TRequest? obj = null, Method method = Method.Get)
+        where TRequest : class
     {
-        using (RestClient client = new(apiProvider))
+        using (RestClient client = new(baseUrl))
         {
-            RestRequest request = new(method);
-            T? result = post ? await client.PostAsync<T>(request) : await client.GetAsync<T>(request);
-            string methodType = post ? "POST" : "GET";
-            return result.GetValue($"REST {methodType} method returned null");
+            RestRequest request = new(resource, method);
+            if (headerName is not null && headerValue is not null)
+            {
+                request.AddHeader(headerName, headerValue);
+            }
+            if (queryParameters is not null)
+            {
+                foreach (string name in queryParameters.Keys)
+                {
+                    request.AddQueryParameter(name, queryParameters[name]);
+                }
+            }
+            if (obj is not null)
+            {
+                request.AddJsonBody(obj);
+            }
+
+            TResponse? result;
+            switch (method)
+            {
+                case Method.Get:
+                    result = await client.GetAsync<TResponse>(request);
+                    return result.GetValue("REST GET method returned null");
+                case Method.Post:
+                    result = await client.PostAsync<TResponse>(request);
+                    return result.GetValue("REST POST method returned null");
+                default: throw new ArgumentOutOfRangeException(nameof(method), method, null);
+            }
         }
     }
 }
