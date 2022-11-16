@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>3.0.0</Version>
+    <Version>3.1.0</Version>
     <Authors>Vadim Borovikov</Authors>
     <Company>Care Space</Company>
     <RepositoryUrl>https://github.com/Vadim-Borovikov/GryphonUtilities</RepositoryUrl>
