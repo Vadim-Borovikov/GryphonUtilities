@@ -14,4 +14,6 @@ public static class DateTimeOffsetHelper
     {
         return System.TimeOnly.FromTimeSpan(dateTimeOffset.TimeOfDay);
     }
+
+    public static DateTimeOffset FromDateOnly(DateOnly dateOnly) => new(dateOnly.ToDateTime(System.TimeOnly.MinValue));
 }
