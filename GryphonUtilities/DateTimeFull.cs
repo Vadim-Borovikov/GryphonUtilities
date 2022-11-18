@@ -61,4 +61,9 @@ public struct DateTimeFull : IFormattable
     {
         return new DateTimeFull(dateTimeFull.ToDateTimeOffset(), timeZoneInfo);
     }
+
+    public static DateTimeFull ConvertToUtc(DateTimeFull dateTimeFull)
+    {
+        return new DateTimeFull(dateTimeFull.ToDateTimeOffset(), TimeZoneInfo.Utc);
+    }
 }
