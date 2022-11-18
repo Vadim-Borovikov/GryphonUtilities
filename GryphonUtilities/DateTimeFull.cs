@@ -17,11 +17,9 @@ public struct DateTimeFull : IFormattable
     {
         TimeZoneInfo = timeZoneInfo;
 
-        DateTime dateTime = timeZoneInfo.Equals(TimeZoneInfo.Utc)
-            ? dateTimeOffset.UtcDateTime
-            : TimeZoneInfo.ConvertTimeFromUtc(dateTimeOffset.UtcDateTime, TimeZoneInfo);
-        DateOnly = DateOnly.FromDateTime(dateTime);
-        TimeOnly = TimeOnly.FromDateTime(dateTime);
+        dateTimeOffset = TimeZoneInfo.ConvertTime(dateTimeOffset, TimeZoneInfo);
+        DateOnly = DateOnly.FromDateTime(dateTimeOffset.DateTime);
+        TimeOnly = TimeOnly.FromDateTime(dateTimeOffset.DateTime);
     }
 
     public DateTimeFull(DateOnly dateOnly, TimeOnly timeOnly, string timeZoneId)
@@ -51,7 +49,16 @@ public struct DateTimeFull : IFormattable
         return new DateTimeFull(dateOnly, timeOnly, TimeZoneInfo.Utc);
     }
 
-    public static DateTimeFull CreateUtc(DateTimeOffset dateOnlyOffset) => new(dateOnlyOffset, TimeZoneInfo.Utc);
+    public static DateTimeFull CreateUtc(DateTimeOffset dateTimeOffset) => new(dateTimeOffset, TimeZoneInfo.Utc);
+
+    public static DateTimeFull CreateNow(TimeZoneInfo timeZoneInfo) => new(DateTimeOffset.Now, timeZoneInfo);
+
+    public static DateTimeFull CreateUtcNow() => CreateUtc(DateTimeOffset.UtcNow);
 
     public DateTimeOffset ToDateTimeOffset() => new(DateOnly.ToDateTime(TimeOnly), TimeZoneInfo.BaseUtcOffset);
+
+    public static DateTimeFull Convert(DateTimeFull dateTimeFull, TimeZoneInfo timeZoneInfo)
+    {
+        return new DateTimeFull(dateTimeFull.ToDateTimeOffset(), timeZoneInfo);
+    }
 }

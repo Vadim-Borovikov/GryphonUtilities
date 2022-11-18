@@ -10,18 +10,18 @@ public sealed class TimeManager
         TimeZoneInfo = timeZoneId is null ? TimeZoneInfo.Local : TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
     }
 
-    public DateTimeFull Now() => ToLocal(DateTimeFull.CreateUtc(DateTimeOffset.UtcNow));
+    public DateTimeFull Now() => DateTimeFull.CreateNow(TimeZoneInfo);
 
-    public DateTimeFull ToLocal(DateTimeFull dateTimeFull)
+    public DateTimeFull Convert(DateTimeFull dateTimeFull) => DateTimeFull.Convert(dateTimeFull, TimeZoneInfo);
+
+    public DateTimeFull GetDateTimeFull(DateTime dateTime)
     {
-        if (dateTimeFull.TimeZoneInfo.Equals(TimeZoneInfo))
-        {
-            return dateTimeFull;
-        }
-
-        DateTimeOffset dateTimeOffset = dateTimeFull.ToDateTimeOffset();
-        return new DateTimeFull(dateTimeOffset, TimeZoneInfo);
+        TimeZoneInfo timeZoneInfo = dateTime.Kind == DateTimeKind.Utc ? TimeZoneInfo.Utc : TimeZoneInfo;
+        return new DateTimeFull(DateOnly.FromDateTime(dateTime), TimeOnly.FromDateTime(dateTime), timeZoneInfo);
     }
+
+    public DateTimeFull GetDateTimeFull(DateTimeOffset dateTimeOffset) => new(dateTimeOffset, TimeZoneInfo);
+    public DateTimeFull GetDateTimeFull(DateOnly dateOnly, TimeOnly timeOnly) => new(dateOnly, timeOnly, TimeZoneInfo);
 
     public static TimeSpan? GetDelayUntil(DateTimeFull? start, TimeSpan delay, DateTimeFull now)
     {
