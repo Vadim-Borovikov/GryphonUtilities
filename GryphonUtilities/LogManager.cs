@@ -24,10 +24,10 @@ public sealed class LogManager
         if (File.Exists(_todayLogPath))
         {
             DateTime modifiedUtc = File.GetLastWriteTimeUtc(_todayLogPath);
-            DateTimeOffset modified = _timeManager.ToLocal(modifiedUtc);
-            if (modified.Date < _timeManager.Now().Date)
+            DateTimeFull modified = new(modifiedUtc, _timeManager.TimeZoneInfo);
+            if (modified.DateOnly < _timeManager.Now().DateOnly)
             {
-                string newPath = GetLogPathFor(modified.DateOnly());
+                string newPath = GetLogPathFor(modified.DateOnly);
                 File.Move(_todayLogPath, newPath);
             }
         }
@@ -87,7 +87,7 @@ public sealed class LogManager
             HashSet<string> newLogs = new();
             for (byte days = 0; days < LogsToHold; ++days)
             {
-                DateOnly date = _timeManager.Now().DateOnly().AddDays(-days);
+                DateOnly date = _timeManager.Now().DateOnly.AddDays(-days);
                 string name = GetLogPathFor(date);
                 newLogs.Add(name);
             }
@@ -103,7 +103,7 @@ public sealed class LogManager
 
     private string GetLogPathFor(DateOnly day)
     {
-        return day == _timeManager.Now().DateOnly()
+        return day == _timeManager.Now().DateOnly
             ? _todayLogPath
             : Path.Combine(MessagesLogDirectory, $"{day:yyyy.MM.dd}.txt");
     }

@@ -10,23 +10,29 @@ public sealed class TimeManager
         TimeZoneInfo = timeZoneId is null ? TimeZoneInfo.Local : TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
     }
 
-    public DateTimeOffset Now() => ToLocal(DateTimeOffset.UtcNow);
+    public DateTimeFull Now() => ToLocal(DateTimeFull.CreateUtc(DateTimeOffset.UtcNow));
 
-    public DateTimeOffset ToLocal(DateTimeOffset utc)
+    public DateTimeFull ToLocal(DateTimeFull dateTimeFull)
     {
-        DateTime dateTime = TimeZoneInfo.ConvertTimeFromUtc(utc.UtcDateTime, TimeZoneInfo);
-        return new DateTimeOffset(dateTime, TimeZoneInfo.BaseUtcOffset);
+        if (dateTimeFull.TimeZoneInfo.Equals(TimeZoneInfo))
+        {
+            return dateTimeFull;
+        }
+
+        DateTimeOffset dateTimeOffset = dateTimeFull.ToDateTimeOffset();
+        return new DateTimeFull(dateTimeOffset, TimeZoneInfo);
     }
 
-    public static TimeSpan? GetDelayUntil(DateTimeOffset? start, TimeSpan delay, DateTimeOffset now)
+    public static TimeSpan? GetDelayUntil(DateTimeFull? start, TimeSpan delay, DateTimeFull now)
     {
         if (start is null)
         {
             return null;
         }
 
-        DateTimeOffset time = start.Value + delay;
-        return time <= now ? null : time - now;
+        DateTimeOffset time = start.Value.ToDateTimeOffset() + delay;
+        DateTimeOffset nowOffset = now.ToDateTimeOffset();
+        return time <= nowOffset ? null : time - nowOffset;
     }
 
     public readonly TimeZoneInfo TimeZoneInfo;
