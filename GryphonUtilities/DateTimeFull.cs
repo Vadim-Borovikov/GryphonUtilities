@@ -17,7 +17,7 @@ public struct DateTimeFull : IFormattable
     {
         TimeZoneInfo = timeZoneInfo;
 
-        DateTime dateTime = timeZoneInfo.Equals(UtcTimeZone)
+        DateTime dateTime = timeZoneInfo.Equals(TimeZoneInfo.Utc)
             ? dateTimeOffset.UtcDateTime
             : TimeZoneInfo.ConvertTimeFromUtc(dateTimeOffset.UtcDateTime, TimeZoneInfo);
         DateOnly = DateOnly.FromDateTime(dateTime);
@@ -46,12 +46,12 @@ public struct DateTimeFull : IFormattable
         return ToDateTimeOffset().ToString(format, formatProvider);
     }
 
-    public static DateTimeFull CreateUtc(DateOnly dateOnly, TimeOnly timeOnly) => new(dateOnly, timeOnly, UtcTimeZone);
+    public static DateTimeFull CreateUtc(DateOnly dateOnly, TimeOnly timeOnly)
+    {
+        return new DateTimeFull(dateOnly, timeOnly, TimeZoneInfo.Utc);
+    }
 
-    public static DateTimeFull CreateUtc(DateTimeOffset dateOnlyOffset) => new(dateOnlyOffset, UtcTimeZone);
+    public static DateTimeFull CreateUtc(DateTimeOffset dateOnlyOffset) => new(dateOnlyOffset, TimeZoneInfo.Utc);
 
     public DateTimeOffset ToDateTimeOffset() => new(DateOnly.ToDateTime(TimeOnly), TimeZoneInfo.BaseUtcOffset);
-
-    public static readonly TimeZoneInfo UtcTimeZone = TimeZoneInfo.FindSystemTimeZoneById(UtcTimeZoneId);
-    public const string UtcTimeZoneId = "GMT Standard Time";
 }
