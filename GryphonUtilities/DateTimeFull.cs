@@ -33,10 +33,25 @@ public struct DateTimeFull : IFormattable
         TimeZoneInfo = timeZoneInfo;
     }
 
-    public override string ToString()
+    public override string ToString() => $"{ToDateTimeOffset()} {TimeZoneInfo.Id}";
+
+    public static DateTimeFull? Parse(string input)
     {
-        string o = TimeZoneInfo.BaseUtcOffset.ToString(@"hh\:mm");
-        return $"{DateOnly} {TimeOnly} +{o} {TimeZoneInfo.Id}";
+        string[] parts = input.Split(' ');
+
+        string dateTimeOffsetInput = string.Join(' ', parts.Take(3));
+        if (!DateTimeOffset.TryParse(dateTimeOffsetInput, out DateTimeOffset dateTimeOffset))
+        {
+            return null;
+        }
+
+        string timeZoneId = string.Join(' ', parts.Skip(3));
+        if (TimeZoneInfo.GetSystemTimeZones().All(info => info.Id != timeZoneId))
+        {
+            return null;
+        }
+
+        return new DateTimeFull(dateTimeOffset, timeZoneId);
     }
 
     public string ToString(string? format, IFormatProvider? formatProvider = null)

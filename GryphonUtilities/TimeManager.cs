@@ -20,6 +20,18 @@ public sealed class TimeManager
         return new DateTimeFull(DateOnly.FromDateTime(dateTime), TimeOnly.FromDateTime(dateTime), timeZoneInfo);
     }
 
+    public DateTimeFull? ParseDateTimeFull(string input)
+    {
+        DateTimeFull? parsed = DateTimeFull.Parse(input);
+        if (parsed is not null)
+        {
+            return parsed;
+        }
+        return DateTimeOffset.TryParse(input, out DateTimeOffset dateTimeOffset)
+            ? GetDateTimeFull(dateTimeOffset)
+            : null;
+    }
+
     public DateTimeFull GetDateTimeFull(DateTimeOffset dateTimeOffset) => new(dateTimeOffset, TimeZoneInfo);
     public DateTimeFull GetDateTimeFull(DateOnly dateOnly, TimeOnly timeOnly) => new(dateOnly, timeOnly, TimeZoneInfo);
 
