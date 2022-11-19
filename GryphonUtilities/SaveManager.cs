@@ -1,42 +1,35 @@
 ﻿using JetBrains.Annotations;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace GryphonUtilities;
 
 [PublicAPI]
-public class SaveManager<T> where T: new()
+public class SaveManager<T> : SaveManagerBase
+    where T: new()
 {
     public T Data { get; private set; }
 
-    public SaveManager(string path)
-    {
-        _path = path;
-        _locker = new object();
-        Data = new T();
-    }
+    public SaveManager(string path, TimeManager? timeManager = null) : base(path, timeManager) => Data = new T();
 
     public void Save()
     {
-        lock (_locker)
+        lock (Locker)
         {
-            string json = JsonConvert.SerializeObject(Data, Formatting.Indented);
-            File.WriteAllText(_path, json);
+            string json = JsonSerializer.Serialize(Data, Options);
+            File.WriteAllText(Path, json);
         }
     }
 
     public void Load()
     {
-        lock (_locker)
+        lock (Locker)
         {
-            if (!File.Exists(_path))
+            if (!File.Exists(Path))
             {
                 return;
             }
-            string json = File.ReadAllText(_path);
-            Data = JsonConvert.DeserializeObject<T>(json) ?? new T();
+            string json = File.ReadAllText(Path);
+            Data = JsonSerializer.Deserialize<T>(json, Options) ?? new T();
         }
     }
-
-    private readonly string _path;
-    private readonly object _locker;
 }

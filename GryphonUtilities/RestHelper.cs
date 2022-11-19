@@ -1,7 +1,7 @@
 ﻿using JetBrains.Annotations;
-using Newtonsoft.Json;
+using System.Text.Json;
 using RestSharp;
-using RestSharp.Serializers.NewtonsoftJson;
+using RestSharp.Serializers.Json;
 
 namespace GryphonUtilities;
 
@@ -10,31 +10,31 @@ public static class RestHelper
 {
     public static Task<TResponse> CallGetMethodAsync<TResponse>(string baseUrl, string? resource,
         IDictionary<string, string>? headerParameters = null, IDictionary<string, string?>? queryParameters = null,
-        JsonSerializerSettings? settings = null)
+        JsonSerializerOptions? options = null)
     {
         return CallMethodAsync<string, TResponse>(baseUrl, resource, headerParameters, queryParameters,
-            settings: settings);
+            options: options);
     }
 
     public static Task<TResponse> CallPostMethodAsync<TRequest, TResponse>(string baseUrl, string? resource,
         IDictionary<string, string>? headerParameters = null, TRequest? obj = null,
-        JsonSerializerSettings? settings = null)
+        JsonSerializerOptions? options = null)
         where TRequest : class
     {
         return CallMethodAsync<TRequest, TResponse>(baseUrl, resource, headerParameters, null, obj,
-            Method.Post, settings);
+            Method.Post, options);
     }
 
     private static async Task<TResponse> CallMethodAsync<TRequest, TResponse>(string baseUrl, string? resource,
         IDictionary<string, string>? headerParameters = null, IDictionary<string, string?>? queryParameters = null,
-        TRequest? obj = null, Method method = Method.Get, JsonSerializerSettings? settings = null)
+        TRequest? obj = null, Method method = Method.Get, JsonSerializerOptions? options = null)
         where TRequest : class
     {
         using (RestClient client = new(baseUrl))
         {
-            if (settings is not null)
+            if (options is not null)
             {
-                client.UseNewtonsoftJson(settings);
+                client.UseSystemTextJson(options);
             }
             RestRequest request = new(resource, method);
             if (headerParameters is not null)

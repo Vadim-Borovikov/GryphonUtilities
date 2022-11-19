@@ -33,25 +33,21 @@ public struct DateTimeFull : IFormattable
         TimeZoneInfo = timeZoneInfo;
     }
 
-    public override string ToString() => $"{ToDateTimeOffset()} {TimeZoneInfo.Id}";
+    public override string ToString() => $"{ToDateTimeOffset():o}@{TimeZoneInfo.Id}";
 
     public static DateTimeFull? Parse(string input)
     {
-        string[] parts = input.Split(' ');
+        string[] parts = input.Split('@');
 
-        string dateTimeOffsetInput = string.Join(' ', parts.Take(3));
+        string dateTimeOffsetInput = parts[0];
         if (!DateTimeOffset.TryParse(dateTimeOffsetInput, out DateTimeOffset dateTimeOffset))
         {
             return null;
         }
 
-        string timeZoneId = string.Join(' ', parts.Skip(3));
-        if (TimeZoneInfo.GetSystemTimeZones().All(info => info.Id != timeZoneId))
-        {
-            return null;
-        }
-
-        return new DateTimeFull(dateTimeOffset, timeZoneId);
+        string timeZoneId = parts[1];
+        TimeZoneInfo? timeZoneInfo = TimeZoneInfo.GetSystemTimeZones().SingleOrDefault(info => info.Id == timeZoneId);
+        return timeZoneInfo is null ? null : new DateTimeFull(dateTimeOffset, timeZoneInfo);
     }
 
     public string ToString(string? format, IFormatProvider? formatProvider = null)
