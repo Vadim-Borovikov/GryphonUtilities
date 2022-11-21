@@ -39,6 +39,11 @@ public struct DateTimeFull : IFormattable
     {
         string[] parts = input.Split('@');
 
+        if (parts.Length != 2)
+        {
+            return null;
+        }
+
         string dateTimeOffsetInput = parts[0];
         if (!DateTimeOffset.TryParse(dateTimeOffsetInput, out DateTimeOffset dateTimeOffset))
         {
