@@ -1,9 +1,12 @@
-﻿using JetBrains.Annotations;
+﻿using System.Numerics;
+using JetBrains.Annotations;
 
 namespace GryphonUtilities;
 
 [PublicAPI]
-public struct DateTimeFull : IFormattable
+public struct DateTimeFull : IFormattable, IEquatable<DateTimeFull>, IComparable<DateTimeFull>,
+    IComparisonOperators<DateTimeFull, DateTimeFull, bool>, IAdditionOperators<DateTimeFull, TimeSpan, DateTimeFull>,
+    ISubtractionOperators<DateTimeFull, TimeSpan, DateTimeFull>
 {
     public DateOnly DateOnly;
     public TimeOnly TimeOnly;
@@ -82,4 +85,35 @@ public struct DateTimeFull : IFormattable
     {
         return new DateTimeFull(dateTimeFull.ToDateTimeOffset(), TimeZoneInfo.Utc);
     }
+
+    public static bool operator ==(DateTimeFull left, DateTimeFull right) => left.Equals(right);
+    public static bool operator !=(DateTimeFull left, DateTimeFull right) => !left.Equals(right);
+
+    public static bool operator >(DateTimeFull left, DateTimeFull right) => left.CompareTo(right) > 0;
+    public static bool operator <(DateTimeFull left, DateTimeFull right) => left.CompareTo(right) < 0;
+
+    public static bool operator >=(DateTimeFull left, DateTimeFull right) => (left > right) || (left == right);
+    public static bool operator <=(DateTimeFull left, DateTimeFull right) => (left < right) || (left == right);
+
+    public static DateTimeFull operator+(DateTimeFull left, TimeSpan right)
+    {
+        return new DateTimeFull(left.ToDateTimeOffset() + right, left.TimeZoneInfo);
+    }
+
+    public static DateTimeFull operator-(DateTimeFull left, TimeSpan right)
+    {
+        return new DateTimeFull(left.ToDateTimeOffset() - right, left.TimeZoneInfo);
+    }
+
+    public bool Equals(DateTimeFull other)
+    {
+        return DateOnly.Equals(other.DateOnly) && TimeOnly.Equals(other.TimeOnly)
+                                               && TimeZoneInfo.Equals(other.TimeZoneInfo);
+    }
+
+    public override bool Equals(object? obj) => obj is DateTimeFull other && Equals(other);
+
+    public override int GetHashCode() => HashCode.Combine(DateOnly, TimeOnly, TimeZoneInfo);
+
+    public int CompareTo(DateTimeFull other) => ToDateTimeOffset().CompareTo(other.ToDateTimeOffset());
 }
