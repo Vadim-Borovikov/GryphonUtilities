@@ -6,7 +6,8 @@ namespace GryphonUtilities;
 [PublicAPI]
 public struct DateTimeFull : IFormattable, IEquatable<DateTimeFull>, IComparable<DateTimeFull>,
     IComparisonOperators<DateTimeFull, DateTimeFull, bool>, IAdditionOperators<DateTimeFull, TimeSpan, DateTimeFull>,
-    ISubtractionOperators<DateTimeFull, TimeSpan, DateTimeFull>
+    ISubtractionOperators<DateTimeFull, TimeSpan, DateTimeFull>,
+    ISubtractionOperators<DateTimeFull, DateTimeFull, TimeSpan>
 {
     public DateOnly DateOnly;
     public TimeOnly TimeOnly;
@@ -75,6 +76,7 @@ public struct DateTimeFull : IFormattable, IEquatable<DateTimeFull>, IComparable
     public static DateTimeFull CreateUtcNow() => CreateUtc(DateTimeOffset.UtcNow);
 
     public DateTimeOffset ToDateTimeOffset() => new(DateOnly.ToDateTime(TimeOnly), TimeZoneInfo.BaseUtcOffset);
+    public DateTime ToUtcDateTime() => ToDateTimeOffset().UtcDateTime;
 
     public static DateTimeFull Convert(DateTimeFull dateTimeFull, TimeZoneInfo timeZoneInfo)
     {
@@ -103,6 +105,11 @@ public struct DateTimeFull : IFormattable, IEquatable<DateTimeFull>, IComparable
     public static DateTimeFull operator-(DateTimeFull left, TimeSpan right)
     {
         return new DateTimeFull(left.ToDateTimeOffset() - right, left.TimeZoneInfo);
+    }
+
+    public static TimeSpan operator-(DateTimeFull left, DateTimeFull right)
+    {
+        return left.ToDateTimeOffset() - right.ToDateTimeOffset();
     }
 
     public bool Equals(DateTimeFull other)

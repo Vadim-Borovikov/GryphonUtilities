@@ -42,9 +42,8 @@ public sealed class TimeManager
             return null;
         }
 
-        DateTimeOffset time = start.Value.ToDateTimeOffset() + delay;
-        DateTimeOffset nowOffset = now.ToDateTimeOffset();
-        return time <= nowOffset ? null : time - nowOffset;
+        DateTimeFull time = start.Value + delay;
+        return time <= now ? null : time - now;
     }
 
     public readonly TimeZoneInfo TimeZoneInfo;
