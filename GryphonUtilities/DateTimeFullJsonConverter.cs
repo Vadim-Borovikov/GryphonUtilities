@@ -1,9 +1,11 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 
 namespace GryphonUtilities;
 
-internal sealed class DateTimeFullJsonConverter : JsonConverter<DateTimeFull>
+[PublicAPI]
+public sealed class DateTimeFullJsonConverter : JsonConverter<DateTimeFull>
 {
     public DateTimeFullJsonConverter(TimeManager? timeManager = null) => _timeManager = timeManager;
 
