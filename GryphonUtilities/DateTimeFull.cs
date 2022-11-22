@@ -9,9 +9,14 @@ public struct DateTimeFull : IFormattable, IEquatable<DateTimeFull>, IComparable
     ISubtractionOperators<DateTimeFull, TimeSpan, DateTimeFull>,
     ISubtractionOperators<DateTimeFull, DateTimeFull, TimeSpan>
 {
-    public DateOnly DateOnly;
-    public TimeOnly TimeOnly;
-    public TimeZoneInfo TimeZoneInfo;
+    public readonly DateOnly DateOnly;
+    public readonly TimeOnly TimeOnly;
+    public readonly TimeZoneInfo TimeZoneInfo;
+
+    public readonly DateTimeOffset DateTimeOffset;
+
+    public DateTime UtcDateTime => DateTimeOffset.UtcDateTime;
+
 
     public DateTimeFull(DateTimeOffset dateTimeOffset, string timeZoneId)
         : this(dateTimeOffset, TimeZoneInfo.FindSystemTimeZoneById(timeZoneId))
@@ -21,9 +26,9 @@ public struct DateTimeFull : IFormattable, IEquatable<DateTimeFull>, IComparable
     {
         TimeZoneInfo = timeZoneInfo;
 
-        dateTimeOffset = TimeZoneInfo.ConvertTime(dateTimeOffset, TimeZoneInfo);
-        DateOnly = DateOnly.FromDateTime(dateTimeOffset.DateTime);
-        TimeOnly = TimeOnly.FromDateTime(dateTimeOffset.DateTime);
+        DateTimeOffset = TimeZoneInfo.ConvertTime(dateTimeOffset, TimeZoneInfo);
+        DateOnly = DateOnly.FromDateTime(DateTimeOffset.DateTime);
+        TimeOnly = TimeOnly.FromDateTime(DateTimeOffset.DateTime);
     }
 
     public DateTimeFull(DateOnly dateOnly, TimeOnly timeOnly, string timeZoneId)
@@ -35,9 +40,10 @@ public struct DateTimeFull : IFormattable, IEquatable<DateTimeFull>, IComparable
         DateOnly = dateOnly;
         TimeOnly = timeOnly;
         TimeZoneInfo = timeZoneInfo;
+        DateTimeOffset = new DateTimeOffset(DateOnly.ToDateTime(TimeOnly), TimeZoneInfo.BaseUtcOffset);
     }
 
-    public override string ToString() => $"{ToDateTimeOffset():o}@{TimeZoneInfo.Id}";
+    public override string ToString() => $"{DateTimeOffset:o}@{TimeZoneInfo.Id}";
 
     public static DateTimeFull? Parse(string input)
     {
@@ -61,7 +67,7 @@ public struct DateTimeFull : IFormattable, IEquatable<DateTimeFull>, IComparable
 
     public string ToString(string? format, IFormatProvider? formatProvider = null)
     {
-        return ToDateTimeOffset().ToString(format, formatProvider);
+        return DateTimeOffset.ToString(format, formatProvider);
     }
 
     public static DateTimeFull CreateUtc(DateOnly dateOnly, TimeOnly timeOnly)
@@ -71,22 +77,16 @@ public struct DateTimeFull : IFormattable, IEquatable<DateTimeFull>, IComparable
 
     public static DateTimeFull CreateUtc(DateTimeOffset dateTimeOffset) => new(dateTimeOffset, TimeZoneInfo.Utc);
 
-    public static DateTimeFull CreateNow(TimeZoneInfo timeZoneInfo) => new(DateTimeOffset.Now, timeZoneInfo);
+    public static DateTimeFull CreateNow(TimeZoneInfo timeZoneInfo) => new(DateTimeOffset.UtcNow, timeZoneInfo);
 
-    public static DateTimeFull CreateUtcNow() => CreateUtc(DateTimeOffset.UtcNow);
-
-    public DateTimeOffset ToDateTimeOffset() => new(DateOnly.ToDateTime(TimeOnly), TimeZoneInfo.BaseUtcOffset);
-    public DateTime ToUtcDateTime() => ToDateTimeOffset().UtcDateTime;
+    public static DateTimeFull CreateUtcNow() => CreateNow(TimeZoneInfo.Utc);
 
     public static DateTimeFull Convert(DateTimeFull dateTimeFull, TimeZoneInfo timeZoneInfo)
     {
-        return new DateTimeFull(dateTimeFull.ToDateTimeOffset(), timeZoneInfo);
+        return new DateTimeFull(dateTimeFull.DateTimeOffset, timeZoneInfo);
     }
 
-    public static DateTimeFull ConvertToUtc(DateTimeFull dateTimeFull)
-    {
-        return new DateTimeFull(dateTimeFull.ToDateTimeOffset(), TimeZoneInfo.Utc);
-    }
+    public static DateTimeFull ConvertToUtc(DateTimeFull dateTimeFull) => Convert(dateTimeFull, TimeZoneInfo.Utc);
 
     public static bool operator ==(DateTimeFull left, DateTimeFull right) => left.Equals(right);
     public static bool operator !=(DateTimeFull left, DateTimeFull right) => !left.Equals(right);
@@ -94,33 +94,35 @@ public struct DateTimeFull : IFormattable, IEquatable<DateTimeFull>, IComparable
     public static bool operator >(DateTimeFull left, DateTimeFull right) => left.CompareTo(right) > 0;
     public static bool operator <(DateTimeFull left, DateTimeFull right) => left.CompareTo(right) < 0;
 
-    public static bool operator >=(DateTimeFull left, DateTimeFull right) => (left > right) || (left == right);
-    public static bool operator <=(DateTimeFull left, DateTimeFull right) => (left < right) || (left == right);
+    public static bool operator >=(DateTimeFull left, DateTimeFull right) => left.CompareTo(right) >= 0;
+    public static bool operator <=(DateTimeFull left, DateTimeFull right) => left.CompareTo(right) <= 0;
 
     public static DateTimeFull operator+(DateTimeFull left, TimeSpan right)
     {
-        return new DateTimeFull(left.ToDateTimeOffset() + right, left.TimeZoneInfo);
+        return new DateTimeFull(left.DateTimeOffset + right, left.TimeZoneInfo);
     }
 
     public static DateTimeFull operator-(DateTimeFull left, TimeSpan right)
     {
-        return new DateTimeFull(left.ToDateTimeOffset() - right, left.TimeZoneInfo);
+        return new DateTimeFull(left.DateTimeOffset - right, left.TimeZoneInfo);
     }
 
-    public static TimeSpan operator-(DateTimeFull left, DateTimeFull right)
-    {
-        return left.ToDateTimeOffset() - right.ToDateTimeOffset();
-    }
+    public static TimeSpan operator-(DateTimeFull left, DateTimeFull right) => left.UtcDateTime - right.UtcDateTime;
 
     public bool Equals(DateTimeFull other)
     {
-        return DateOnly.Equals(other.DateOnly) && TimeOnly.Equals(other.TimeOnly)
-                                               && TimeZoneInfo.Equals(other.TimeZoneInfo);
+        return UtcDateTime.Equals(other.UtcDateTime) && TimeZoneInfo.Equals(other.TimeZoneInfo);
     }
 
     public override bool Equals(object? obj) => obj is DateTimeFull other && Equals(other);
 
-    public override int GetHashCode() => HashCode.Combine(DateOnly, TimeOnly, TimeZoneInfo);
+    public override int GetHashCode() => HashCode.Combine(UtcDateTime, TimeZoneInfo);
 
-    public int CompareTo(DateTimeFull other) => ToDateTimeOffset().CompareTo(other.ToDateTimeOffset());
+    public int CompareTo(DateTimeFull other)
+    {
+        int utcDiff = UtcDateTime.CompareTo(other.UtcDateTime);
+        return utcDiff != 0
+            ? utcDiff
+            : string.Compare(TimeZoneInfo.Id, other.TimeZoneInfo.Id, StringComparison.InvariantCulture);
+    }
 }
