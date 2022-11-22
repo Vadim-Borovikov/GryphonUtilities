@@ -77,9 +77,9 @@ public struct DateTimeFull : IFormattable, IEquatable<DateTimeFull>, IComparable
 
     public static DateTimeFull CreateUtc(DateTimeOffset dateTimeOffset) => new(dateTimeOffset, TimeZoneInfo.Utc);
 
-    public static DateTimeFull CreateNow(TimeZoneInfo timeZoneInfo) => new(DateTimeOffset.UtcNow, timeZoneInfo);
+    public static DateTimeFull CreateNow(TimeZoneInfo timeZoneInfo) => new(DateTimeOffset.Now, timeZoneInfo);
 
-    public static DateTimeFull CreateUtcNow() => CreateNow(TimeZoneInfo.Utc);
+    public static DateTimeFull CreateUtcNow() => new(DateTimeOffset.UtcNow, TimeZoneInfo.Utc);
 
     public static DateTimeFull Convert(DateTimeFull dateTimeFull, TimeZoneInfo timeZoneInfo)
     {
