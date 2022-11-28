@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>9.1.0</Version>
+    <Version>9.2.0</Version>
     <Authors>Vadim Borovikov</Authors>
     <Company>Care Space</Company>
     <RepositoryUrl>https://github.com/Vadim-Borovikov/GryphonUtilities</RepositoryUrl>
@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
+    <PackageReference Include="JoyMoe.Common.Json" Version="6.0.0" />
     <PackageReference Include="RestSharp" Version="108.0.3" />
   </ItemGroup>
 
