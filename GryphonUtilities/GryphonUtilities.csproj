@@ -5,13 +5,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>9.2.0</Version>
+    <Version>9.3.2</Version>
     <Authors>Vadim Borovikov</Authors>
     <Company>Care Space</Company>
     <RepositoryUrl>https://github.com/Vadim-Borovikov/GryphonUtilities</RepositoryUrl>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Description>Some custom utilities set</Description>
+    <Title>Gryphon Utilities</Title>
   </PropertyGroup>
 
   <ItemGroup>
