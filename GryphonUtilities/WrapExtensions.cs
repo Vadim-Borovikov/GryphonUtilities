@@ -3,7 +3,7 @@
 namespace GryphonUtilities;
 
 [PublicAPI]
-public static class EnumerableHelper
+public static class WrapExtensions
 {
     public static List<T> WrapWithList<T>(this T item) => new() { item };
 
