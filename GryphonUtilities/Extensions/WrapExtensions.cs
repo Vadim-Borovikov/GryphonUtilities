@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace GryphonUtilities;
+namespace GryphonUtilities.Extensions;
 
 [PublicAPI]
 public static class WrapExtensions

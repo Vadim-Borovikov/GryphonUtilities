@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using GryphonUtilities.Extensions;
 using JetBrains.Annotations;
 
 namespace GryphonUtilities;
@@ -6,9 +7,9 @@ namespace GryphonUtilities;
 [PublicAPI]
 public sealed class LogManager
 {
-    public LogManager()
+    public LogManager(string? timeZoneId = null)
     {
-        _timeManager = new TimeManager();
+        _timeManager = new TimeManager(timeZoneId);
         if (!Directory.Exists(MessagesLogDirectory))
         {
             Directory.CreateDirectory(MessagesLogDirectory);
@@ -17,7 +18,21 @@ public sealed class LogManager
         DeleteOldLogs();
     }
 
+    public static void DeleteExceptionLog()
+    {
+        lock (ExceptionsLocker)
+        {
+            File.Delete(ExceptionsLogPath);
+        }
+    }
+
     public void SetTimeZone(string? timeZoneId = null) => _timeManager = new TimeManager(timeZoneId);
+
+    public void LogStartup()
+    {
+        LogMessage();
+        LogTimedMessage("Startup");
+    }
 
     public void LogMessage(string? message = null)
     {
@@ -31,7 +46,7 @@ public sealed class LogManager
                 File.Move(_todayLogPath, newPath);
             }
         }
-        InsertToStart(_todayLogPath, $"{message}{Environment.NewLine}", _logsLocker);
+        InsertToStart(_todayLogPath, $"{message}{Environment.NewLine}", LogsLocker);
     }
 
     public void LogTimedMessage(string? message = null) => LogMessage($"{_timeManager.Now():HH:mm:ss}: {message}");
@@ -41,16 +56,8 @@ public sealed class LogManager
     public void LogException(Exception ex)
     {
         string body =
-            string.Join($"{Environment.NewLine}{Environment.NewLine}", Flatten(ex).Select(e => e.ToString()));
+            string.Join($"{Environment.NewLine}{Environment.NewLine}", ex.FlattenAll().Select(e => e.ToString()));
         LogError(ex.Message, body);
-    }
-
-    public void DeleteExceptionLog()
-    {
-        lock (_exceptionsLocker)
-        {
-            File.Delete(ExceptionsLogPath);
-        }
     }
 
     public void LogExceptionIfPresents(Task t)
@@ -68,10 +75,10 @@ public sealed class LogManager
         LogTimedMessage($"Error: {title}");
         InsertToStart(ExceptionsLogPath,
             $"{_timeManager.Now():dd.MM HH:mm:ss}{Environment.NewLine}{body}{Environment.NewLine}{Environment.NewLine}",
-            _exceptionsLocker);
+            ExceptionsLocker);
     }
 
-    private void InsertToStart(string path, string? contents, object locker)
+    private static void InsertToStart(string path, string? contents, object locker)
     {
         lock (locker)
         {
@@ -82,7 +89,7 @@ public sealed class LogManager
 
     private void DeleteOldLogs()
     {
-        lock (_logsLocker)
+        lock (LogsLocker)
         {
             HashSet<string> newLogs = new();
             for (byte days = 0; days < LogsToHold; ++days)
@@ -108,29 +115,11 @@ public sealed class LogManager
             : Path.Combine(MessagesLogDirectory, $"{day:yyyy.MM.dd}.txt");
     }
 
-    private static IEnumerable<Exception> Flatten(Exception ex)
-    {
-        if (ex is AggregateException aggregateException)
-        {
-            foreach (Exception e in aggregateException.Flatten().InnerExceptions)
-            {
-                yield return e;
-            }
-            yield break;
-        }
-
-        yield return ex;
-        while (ex.InnerException is not null)
-        {
-            ex = ex.InnerException;
-            yield return ex;
-        }
-    }
-
     private TimeManager _timeManager;
 
-    private readonly object _exceptionsLocker = new();
-    private readonly object _logsLocker = new();
+    private static readonly object ExceptionsLocker = new();
+    private static readonly object LogsLocker = new();
+
     private readonly string _todayLogPath;
 
     private const string ExceptionsLogPath = "errors.txt";

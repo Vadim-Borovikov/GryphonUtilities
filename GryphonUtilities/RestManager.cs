@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using GryphonUtilities.Extensions;
 using JetBrains.Annotations;
 using RestSharp;
 using RestSharp.Serializers.Json;
@@ -6,24 +7,24 @@ using RestSharp.Serializers.Json;
 namespace GryphonUtilities;
 
 [PublicAPI]
-public class RestManager<TRequest, TResponse> : IDisposable where TRequest : class
+public class RestManager<T> : IDisposable
 {
-    public static Task<TResponse> GetAsync(string baseUrl, string? resource,
+    public static Task<T> GetAsync(string baseUrl, string? resource,
         IDictionary<string, string>? headerParameters = null, IDictionary<string, string?>? queryParameters = null,
         JsonSerializerOptions? options = null)
     {
-        using (RestManager<TRequest, TResponse> client =
+        using (RestManager<T> client =
                new(baseUrl, resource, Method.Get, headerParameters, queryParameters, options:options))
         {
             return client.RunAsync();
         }
     }
 
-    public static Task<TResponse> PostAsync(string baseUrl, string? resource,
-        IDictionary<string, string>? headerParameters = null, TRequest? obj = null,
+    public static Task<T> PostAsync(string baseUrl, string? resource,
+        IDictionary<string, string>? headerParameters = null, object? obj = null,
         JsonSerializerOptions? options = null)
     {
-        using (RestManager<TRequest, TResponse> client =
+        using (RestManager<T> client =
                new(baseUrl, resource, Method.Post, headerParameters, obj: obj, options:options))
         {
             return client.RunAsync();
@@ -32,7 +33,7 @@ public class RestManager<TRequest, TResponse> : IDisposable where TRequest : cla
 
     public RestManager(string baseUrl, string? resource, Method method,
         IDictionary<string, string>? headerParameters = null, IDictionary<string, string?>? queryParameters = null,
-        TRequest? obj = null, JsonSerializerOptions? options = null)
+        object? obj = null, JsonSerializerOptions? options = null)
     {
         _client = new RestClient(baseUrl);
         if (options is not null)
@@ -60,16 +61,16 @@ public class RestManager<TRequest, TResponse> : IDisposable where TRequest : cla
         }
     }
 
-    private async Task<TResponse> RunAsync()
+    private async Task<T> RunAsync()
     {
-        TResponse? result;
+        T? result;
         switch (_request.Method)
         {
             case Method.Get:
-                result = await _client.GetAsync<TResponse>(_request);
+                result = await _client.GetAsync<T>(_request);
                 return result.GetValue("REST GET method returned null");
             case Method.Post:
-                result = await _client.PostAsync<TResponse>(_request);
+                result = await _client.PostAsync<T>(_request);
                 return result.GetValue("REST POST method returned null");
             default: throw new ArgumentOutOfRangeException(nameof(_request.Method), _request.Method, null);
         }
