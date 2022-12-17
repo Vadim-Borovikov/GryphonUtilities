@@ -9,14 +9,16 @@ namespace GryphonUtilities;
 [PublicAPI]
 public class RestManager<T> : IDisposable
 {
-    public static Task<T> GetAsync(string baseUrl, string? resource,
+    public static async Task<T> GetAsync(string baseUrl, string? resource,
         IDictionary<string, string>? headerParameters = null, IDictionary<string, string?>? queryParameters = null,
         JsonSerializerOptions? options = null)
     {
         using (RestManager<T> client =
-               new(baseUrl, resource, Method.Get, headerParameters, queryParameters, options:options))
+               new(baseUrl, resource, Method.Get, headerParameters, queryParameters, options: options))
         {
-            return client.RunAsync();
+            // Must await here, otherwise client will be disposed before finish
+            T result = await client.RunAsync();
+            return result;
         }
     }
 
@@ -25,7 +27,7 @@ public class RestManager<T> : IDisposable
         JsonSerializerOptions? options = null)
     {
         using (RestManager<T> client =
-               new(baseUrl, resource, Method.Post, headerParameters, obj: obj, options:options))
+               new(baseUrl, resource, Method.Post, headerParameters, obj: obj, options: options))
         {
             return client.RunAsync();
         }
