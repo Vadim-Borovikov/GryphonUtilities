@@ -22,14 +22,16 @@ public class RestManager<T> : IDisposable
         }
     }
 
-    public static Task<T> PostAsync(string baseUrl, string? resource,
+    public static async Task<T> PostAsync(string baseUrl, string? resource,
         IDictionary<string, string>? headerParameters = null, object? obj = null,
         JsonSerializerOptions? options = null)
     {
         using (RestManager<T> client =
                new(baseUrl, resource, Method.Post, headerParameters, obj: obj, options: options))
         {
-            return client.RunAsync();
+            // Must await here, otherwise client will be disposed before finish
+            T result = await client.RunAsync();
+            return result;
         }
     }
 
