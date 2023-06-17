@@ -30,7 +30,7 @@ public static class Text
 
     public static string GetNounForm(uint number, string form1, string form24, string formAlot)
     {
-        if (number is >= 11 and <= 14)
+        if (number % 100 is >= 11 and <= 14)
         {
             return formAlot;
         }

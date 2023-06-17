@@ -6,28 +6,10 @@ namespace GryphonUtilities.Tests;
 public class TextTests
 {
     [TestMethod]
-    public void GetNounFormTest()
+    private void GetNounFormTest()
     {
-        AssertForm(1, Form1);
-        AssertForm(2, Form24);
-        AssertForm(3, Form24);
-        AssertForm(4, Form24);
-        for (uint i = 5; i <= 20; i++)
-        {
-            AssertForm(i, FormAlot);
-        }
-
-        for (uint i = 21; i <= 30; i++)
-        {
-            uint j = i - 20;
-            AssertForms(i, j);
-        }
-
-        for (uint i = 31; i <= 100; i++)
-        {
-            uint j = i - 10;
-            AssertForms(i, j);
-        }
+        TestNounForm(false);
+        TestNounForm(true);
     }
 
     [TestMethod]
@@ -37,6 +19,31 @@ public class TextTests
         AssertFormat("7 дней", 7);
         AssertFormat("32 дня", 32);
         AssertFormat("365 дней", 365);
+    }
+
+    private static void TestNounForm(bool addHundred)
+    {
+        uint h = (uint) (addHundred ? 0 : 100);
+        AssertForm(h + 1, Form1);
+        AssertForm(h + 2, Form24);
+        AssertForm(h + 3, Form24);
+        AssertForm(h + 4, Form24);
+        for (uint i = h + 5; i <= (h + 20); i++)
+        {
+            AssertForm(i, FormAlot);
+        }
+
+        for (uint i = h + 21; i <= (h + 30); i++)
+        {
+            uint j = i - 20;
+            AssertForms(i, j);
+        }
+
+        for (uint i = h + 31; i <= (h + 100); i++)
+        {
+            uint j = i - 10;
+            AssertForms(i, j);
+        }
     }
 
     private static void AssertFormat(string expected, uint number)
