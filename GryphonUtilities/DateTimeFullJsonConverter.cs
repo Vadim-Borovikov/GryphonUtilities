@@ -12,10 +12,13 @@ public sealed class DateTimeFullJsonConverter : JsonConverter<DateTimeFull>
 
     public override DateTimeFull Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        string input = reader.GetString() ?? "";
-        DateTimeFull? result =
-            _timeManager is null ? DateTimeFull.Parse(input) : _timeManager.ParseDateTimeFull(input);
-        return result.GetValue();
+        string value = reader.GetString().Denull();
+        if (DateTimeFull.TryParse(value, out DateTimeFull result))
+        {
+            return result;
+        }
+        DateTimeOffset dateTimeOffset = DateTimeOffset.Parse(value);
+        return _timeManager.Denull().GetDateTimeFull(dateTimeOffset);
     }
 
     public override void Write(Utf8JsonWriter writer, DateTimeFull dateTimeFullValue, JsonSerializerOptions options)

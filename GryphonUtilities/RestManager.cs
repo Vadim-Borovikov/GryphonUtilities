@@ -72,10 +72,10 @@ public class RestManager<T> : IDisposable
         {
             case Method.Get:
                 result = await _client.GetAsync<T>(_request);
-                return result.GetValue("REST GET method returned null");
+                return result.Denull("REST GET method returned null");
             case Method.Post:
                 result = await _client.PostAsync<T>(_request);
-                return result.GetValue("REST POST method returned null");
+                return result.Denull("REST POST method returned null");
             default: throw new ArgumentOutOfRangeException(nameof(_request.Method), _request.Method, null);
         }
     }

@@ -45,24 +45,46 @@ public struct DateTimeFull : IFormattable, IEquatable<DateTimeFull>, IComparable
 
     public override string ToString() => $"{DateTimeOffset:o}@{TimeZoneInfo.Id}";
 
-    public static DateTimeFull? Parse(string input)
+    public static DateTimeFull Parse(string value)
     {
-        string[] parts = input.Split('@');
+        if (!TryParse(value, out DateTimeFull result))
+        {
+            throw new FormatException($"String \"{value}\" was not recognized as a valid {nameof(DateTimeFull)}.");
+        }
+        return result;
+    }
+
+    public static bool TryParse(string? value, out DateTimeFull result)
+    {
+        result = default;
+
+        if (value is null)
+        {
+            return false;
+        }
+
+        string[] parts = value.Split('@');
 
         if (parts.Length != 2)
         {
-            return null;
+            return false;
         }
 
         string dateTimeOffsetInput = parts[0];
         if (!DateTimeOffset.TryParse(dateTimeOffsetInput, out DateTimeOffset dateTimeOffset))
         {
-            return null;
+            return false;
         }
 
         string timeZoneId = parts[1];
         TimeZoneInfo? timeZoneInfo = TimeZoneInfo.GetSystemTimeZones().SingleOrDefault(info => info.Id == timeZoneId);
-        return timeZoneInfo is null ? null : new DateTimeFull(dateTimeOffset, timeZoneInfo);
+        if (timeZoneInfo is null)
+        {
+            return false;
+        }
+
+        result = new DateTimeFull(dateTimeOffset, timeZoneInfo);
+        return true;
     }
 
     public string ToString(string? format, IFormatProvider? formatProvider = null)
