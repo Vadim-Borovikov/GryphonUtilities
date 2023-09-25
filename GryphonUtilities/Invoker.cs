@@ -13,8 +13,24 @@ public class Invoker : IDisposable
 
     public void Dispose()
     {
-        _cancellationTokenSource.Cancel();
-        _cancellationTokenSource.Dispose();
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        if (disposing)
+        {
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource.Dispose();
+        }
+
+        _disposed = true;
     }
 
     public void DoAt(Func<CancellationToken, Task> doWork, DateTimeFull at)
@@ -104,4 +120,5 @@ public class Invoker : IDisposable
 
     private readonly CancellationTokenSource _cancellationTokenSource;
     private readonly Logger _logger;
+    private bool _disposed;
 }

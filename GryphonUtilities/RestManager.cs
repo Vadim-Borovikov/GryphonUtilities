@@ -7,7 +7,7 @@ using RestSharp.Serializers.Json;
 namespace GryphonUtilities;
 
 [PublicAPI]
-public class RestManager<T> : IDisposable
+public sealed class RestManager<T> : IDisposable
 {
     public static async Task<T> GetAsync(string baseUrl, string? resource,
         IDictionary<string, string>? headerParameters = null, IDictionary<string, string?>? queryParameters = null,
