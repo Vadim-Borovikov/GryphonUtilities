@@ -26,12 +26,14 @@ public class Invoker : IDisposable
 
         if (disposing)
         {
-            _cancellationTokenSource.Cancel();
+            CancelAll();
             _cancellationTokenSource.Dispose();
         }
 
         _disposed = true;
     }
+
+    public void CancelAll() => _cancellationTokenSource.Cancel();
 
     public void DoAt(Func<CancellationToken, Task> doWork, DateTimeFull at)
     {
