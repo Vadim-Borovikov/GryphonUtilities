@@ -15,7 +15,7 @@ public static class Text
         return string.IsNullOrWhiteSpace(second) ? first : $"{first} {second}";
     }
 
-    public static string FormatLines(IEnumerable<string?> lines, params object[] args)
+    public static string FormatLines(IEnumerable<string?> lines, params object?[] args)
     {
         string format = JoinLines(lines);
         return string.Format(format, args);
