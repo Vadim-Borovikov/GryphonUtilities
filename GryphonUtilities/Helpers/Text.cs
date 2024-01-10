@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace GryphonUtilities;
+namespace GryphonUtilities.Helpers;
 
 [PublicAPI]
 public static class Text
@@ -37,9 +37,9 @@ public static class Text
 
         return (number % 10) switch
         {
-            1             => form1,
+            1 => form1,
             >= 2 and <= 4 => form24,
-            _             => formAlot
+            _ => formAlot
         };
     }
 

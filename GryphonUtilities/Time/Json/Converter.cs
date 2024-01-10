@@ -3,12 +3,12 @@ using System.Text.Json.Serialization;
 using GryphonUtilities.Extensions;
 using JetBrains.Annotations;
 
-namespace GryphonUtilities;
+namespace GryphonUtilities.Time.Json;
 
 [PublicAPI]
-public sealed class DateTimeFullJsonConverter : JsonConverter<DateTimeFull>
+public sealed class Converter : JsonConverter<DateTimeFull>
 {
-    public DateTimeFullJsonConverter(TimeManager? timeManager = null) => _timeManager = timeManager;
+    public Converter(Clock? clock = null) => _clock = clock ?? new Clock();
 
     public override DateTimeFull Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
@@ -18,7 +18,7 @@ public sealed class DateTimeFullJsonConverter : JsonConverter<DateTimeFull>
             return result;
         }
         DateTimeOffset dateTimeOffset = DateTimeOffset.Parse(value);
-        return _timeManager.Denull().GetDateTimeFull(dateTimeOffset);
+        return _clock.Denull().GetDateTimeFull(dateTimeOffset);
     }
 
     public override void Write(Utf8JsonWriter writer, DateTimeFull dateTimeFullValue, JsonSerializerOptions options)
@@ -26,5 +26,5 @@ public sealed class DateTimeFullJsonConverter : JsonConverter<DateTimeFull>
         writer.WriteStringValue(dateTimeFullValue.ToString());
     }
 
-    private readonly TimeManager? _timeManager;
+    private readonly Clock? _clock;
 }

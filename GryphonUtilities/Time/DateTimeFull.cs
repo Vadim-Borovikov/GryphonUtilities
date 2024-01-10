@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using JetBrains.Annotations;
 
-namespace GryphonUtilities;
+namespace GryphonUtilities.Time;
 
 [PublicAPI]
 public struct DateTimeFull : IFormattable, IEquatable<DateTimeFull>, IComparable<DateTimeFull>,
@@ -119,17 +119,17 @@ public struct DateTimeFull : IFormattable, IEquatable<DateTimeFull>, IComparable
     public static bool operator >=(DateTimeFull left, DateTimeFull right) => left.CompareTo(right) >= 0;
     public static bool operator <=(DateTimeFull left, DateTimeFull right) => left.CompareTo(right) <= 0;
 
-    public static DateTimeFull operator+(DateTimeFull left, TimeSpan right)
+    public static DateTimeFull operator +(DateTimeFull left, TimeSpan right)
     {
         return new DateTimeFull(left.DateTimeOffset + right, left.TimeZoneInfo);
     }
 
-    public static DateTimeFull operator-(DateTimeFull left, TimeSpan right)
+    public static DateTimeFull operator -(DateTimeFull left, TimeSpan right)
     {
         return new DateTimeFull(left.DateTimeOffset - right, left.TimeZoneInfo);
     }
 
-    public static TimeSpan operator-(DateTimeFull left, DateTimeFull right) => left.UtcDateTime - right.UtcDateTime;
+    public static TimeSpan operator -(DateTimeFull left, DateTimeFull right) => left.UtcDateTime - right.UtcDateTime;
 
     public bool Equals(DateTimeFull other)
     {

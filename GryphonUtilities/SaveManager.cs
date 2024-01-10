@@ -1,46 +1,56 @@
 ﻿using JetBrains.Annotations;
 using System.Text.Json;
+using GryphonUtilities.Time;
+using GryphonUtilities.Time.Json;
 
 namespace GryphonUtilities;
 
 [PublicAPI]
-public class SaveManager<T> : SaveManagerBase
-    where T: new()
+public class SaveManager<T> where T : new()
 {
-    public T Data { get; private set; }
+    public T SaveData { get; private set; }
 
-    public SaveManager(string path, TimeManager? timeManager = null, Action? afterLoad = null,
-        Action? beforeSave = null) : base(path, timeManager)
+    public SaveManager(string path, Clock? clock = null, Action? afterLoad = null, Action? beforeSave = null)
     {
         _afterLoad = afterLoad;
         _beforeSave = beforeSave;
-        Data = new T();
+        SaveData = new T();
+
+        _path = path;
+        _locker = new object();
+
+        SerializerOptionsProvider optionsProvider = new(clock);
+        _options = optionsProvider.PascalCaseOptions;
+    }
+
+    public void Load()
+    {
+        lock (_locker)
+        {
+            if (!File.Exists(_path))
+            {
+                return;
+            }
+            string json = File.ReadAllText(_path);
+            SaveData = JsonSerializer.Deserialize<T>(json, _options) ?? new T();
+        }
+        _afterLoad?.Invoke();
     }
 
     public void Save()
     {
         _beforeSave?.Invoke();
-        lock (Locker)
+        lock (_locker)
         {
-            string json = JsonSerializer.Serialize(Data, Options);
-            File.WriteAllText(Path, json);
+            string json = JsonSerializer.Serialize(SaveData, _options);
+            File.WriteAllText(_path, json);
         }
-    }
-
-    public void Load()
-    {
-        lock (Locker)
-        {
-            if (!File.Exists(Path))
-            {
-                return;
-            }
-            string json = File.ReadAllText(Path);
-            Data = JsonSerializer.Deserialize<T>(json, Options) ?? new T();
-        }
-        _afterLoad?.Invoke();
     }
 
     private readonly Action? _afterLoad;
     private readonly Action? _beforeSave;
+
+    private readonly JsonSerializerOptions _options;
+    private readonly string _path;
+    private readonly object _locker;
 }

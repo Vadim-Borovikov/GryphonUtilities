@@ -3,18 +3,18 @@ using System.Text.Json;
 using JetBrains.Annotations;
 using JoyMoe.Common.Json;
 
-namespace GryphonUtilities;
+namespace GryphonUtilities.Time.Json;
 
 [PublicAPI]
-public class JsonSerializerOptionsProvider
+public class SerializerOptionsProvider
 {
     public readonly JsonSerializerOptions PascalCaseOptions;
     public readonly JsonSerializerOptions CamelCaseOptions;
     public readonly JsonSerializerOptions SnakeCaseOptions;
 
-    public JsonSerializerOptionsProvider(TimeManager? timeManager = null)
+    public SerializerOptionsProvider(Clock? clock = null)
     {
-        DateTimeFullJsonConverter converter = new(timeManager);
+        Converter converter = new(clock);
         PascalCaseOptions = CreateOptionsWith(converter);
 
         CamelCaseOptions = CreateOptionsWith(converter);
@@ -23,7 +23,7 @@ public class JsonSerializerOptionsProvider
         SnakeCaseOptions = CreateOptionsWith(converter);
         SnakeCaseOptions.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
     }
-    private static JsonSerializerOptions CreateOptionsWith(DateTimeFullJsonConverter converter)
+    private static JsonSerializerOptions CreateOptionsWith(Converter converter)
     {
         JsonSerializerOptions options = new()
         {

@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using GryphonUtilities.Time;
+using JetBrains.Annotations;
 
 namespace GryphonUtilities;
 

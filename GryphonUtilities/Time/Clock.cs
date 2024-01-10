@@ -1,18 +1,21 @@
 ﻿using JetBrains.Annotations;
 
-namespace GryphonUtilities;
+namespace GryphonUtilities.Time;
 
 [PublicAPI]
-public sealed class TimeManager
+public sealed class Clock
 {
-    public TimeManager(string? timeZoneId = null)
+    public Clock(string? timeZoneId = null)
     {
         TimeZoneInfo = timeZoneId is null ? TimeZoneInfo.Local : TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
     }
 
     public DateTimeFull Now() => DateTimeFull.CreateNow(TimeZoneInfo);
 
-    public DateTimeFull Convert(DateTimeFull dateTimeFull) => DateTimeFull.Convert(dateTimeFull, TimeZoneInfo);
+    public DateTimeFull Convert(DateTimeFull dateTimeFull)
+    {
+        return DateTimeFull.Convert(dateTimeFull, TimeZoneInfo);
+    }
 
     public DateTimeFull GetDateTimeFull(DateTime dateTime)
     {

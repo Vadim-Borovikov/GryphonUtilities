@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using GryphonUtilities.Extensions;
+using GryphonUtilities.Time;
 using JetBrains.Annotations;
 
 namespace GryphonUtilities;
@@ -7,11 +8,11 @@ namespace GryphonUtilities;
 [PublicAPI]
 public sealed class Logger
 {
-    public TimeManager TimeManager;
+    public Clock Clock;
 
-    public Logger(TimeManager timeManager)
+    public Logger(Clock clock)
     {
-        TimeManager = timeManager;
+        Clock = clock;
         if (!Directory.Exists(MessagesLogDirectory))
         {
             Directory.CreateDirectory(MessagesLogDirectory);
@@ -38,8 +39,8 @@ public sealed class Logger
         if (File.Exists(TodayLogPath))
         {
             DateTime modifiedUtc = File.GetLastWriteTimeUtc(TodayLogPath);
-            DateTimeFull modified = new(modifiedUtc, TimeManager.TimeZoneInfo);
-            if (modified.DateOnly < TimeManager.Now().DateOnly)
+            DateTimeFull modified = new(modifiedUtc, Clock.TimeZoneInfo);
+            if (modified.DateOnly < Clock.Now().DateOnly)
             {
                 string newPath = GetLogPathFor(modified.DateOnly);
                 File.Move(TodayLogPath, newPath);
@@ -48,7 +49,7 @@ public sealed class Logger
         InsertToStart(TodayLogPath, $"{message}{Environment.NewLine}", LogsLocker);
     }
 
-    public void LogTimedMessage(string? message = null) => LogMessage($"{TimeManager.Now():HH:mm:ss}: {message}");
+    public void LogTimedMessage(string? message = null) => LogMessage($"{Clock.Now():HH:mm:ss}: {message}");
 
     public void LogError(string message) => LogError(message, message);
 
@@ -73,7 +74,7 @@ public sealed class Logger
     {
         LogTimedMessage($"Error: {title}");
         InsertToStart(ExceptionsLogPath,
-            $"{TimeManager.Now():dd.MM HH:mm:ss}{Environment.NewLine}{body}{Environment.NewLine}{Environment.NewLine}",
+            $"{Clock.Now():dd.MM HH:mm:ss}{Environment.NewLine}{body}{Environment.NewLine}{Environment.NewLine}",
             ExceptionsLocker);
     }
 
@@ -93,7 +94,7 @@ public sealed class Logger
             HashSet<string> newLogs = new();
             for (byte days = 0; days < LogsToHold; ++days)
             {
-                DateOnly date = TimeManager.Now().DateOnly.AddDays(-days);
+                DateOnly date = Clock.Now().DateOnly.AddDays(-days);
                 string name = GetLogPathFor(date);
                 newLogs.Add(name);
             }
@@ -109,7 +110,7 @@ public sealed class Logger
 
     private string GetLogPathFor(DateOnly day)
     {
-        return day == TimeManager.Now().DateOnly
+        return day == Clock.Now().DateOnly
             ? TodayLogPath
             : Path.Combine(MessagesLogDirectory, $"{day:yyyy.MM.dd}.txt");
     }
