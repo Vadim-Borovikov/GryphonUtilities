@@ -7,7 +7,7 @@ namespace GryphonUtilities.Tests;
 public class TextTests
 {
     [TestMethod]
-    private void GetNounFormTest()
+    public void GetNounFormTest()
     {
         TestNounForm(false);
         TestNounForm(true);
