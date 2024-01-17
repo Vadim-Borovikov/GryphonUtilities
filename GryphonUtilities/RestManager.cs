@@ -7,30 +7,56 @@ using RestSharp.Serializers.Json;
 namespace GryphonUtilities;
 
 [PublicAPI]
-public sealed class RestManager<T> : IDisposable
+public sealed class RestManager : IDisposable
 {
-    public static async Task<T> GetAsync(string baseUrl, string? resource,
+    public static async Task<RestResponse> GetAsync(string baseUrl, string? resource,
         IDictionary<string, string>? headerParameters = null, IDictionary<string, string?>? queryParameters = null,
         JsonSerializerOptions? options = null)
     {
-        using (RestManager<T> client =
+        using (RestManager client =
                new(baseUrl, resource, Method.Get, headerParameters, queryParameters, options: options))
         {
             // Must await here, otherwise client will be disposed before finish
-            T result = await client.RunAsync();
+            RestResponse response = await client.RunAsync();
+            return response;
+        }
+    }
+
+    public static async Task<T> GetAsync<T>(string baseUrl, string? resource,
+        IDictionary<string, string>? headerParameters = null, IDictionary<string, string?>? queryParameters = null,
+        JsonSerializerOptions? options = null)
+    {
+        using (RestManager client =
+               new(baseUrl, resource, Method.Get, headerParameters, queryParameters, options: options))
+        {
+            // Must await here, otherwise client will be disposed before finish
+            T result = await client.RunAsync<T>();
             return result;
         }
     }
 
-    public static async Task<T> PostAsync(string baseUrl, string? resource,
+    public static async Task<RestResponse> PostAsync(string baseUrl, string? resource,
         IDictionary<string, string>? headerParameters = null, object? obj = null,
         JsonSerializerOptions? options = null)
     {
-        using (RestManager<T> client =
+        using (RestManager client =
                new(baseUrl, resource, Method.Post, headerParameters, obj: obj, options: options))
         {
             // Must await here, otherwise client will be disposed before finish
-            T result = await client.RunAsync();
+            RestResponse response = await client.RunAsync();
+            return response;
+        }
+    }
+
+    public static async Task<T> PostAsync<T>(string baseUrl, string? resource,
+        IDictionary<string, string>? headerParameters = null, object? obj = null,
+        JsonSerializerOptions? options = null)
+    {
+        using (RestManager client =
+               new(baseUrl, resource, Method.Post, headerParameters, obj: obj, options: options))
+        {
+            // Must await here, otherwise client will be disposed before finish
+            T result = await client.RunAsync<T>();
             return result;
         }
     }
@@ -65,7 +91,7 @@ public sealed class RestManager<T> : IDisposable
         }
     }
 
-    private async Task<T> RunAsync()
+    private async Task<T> RunAsync<T>()
     {
         T? result;
         switch (_request.Method)
@@ -78,6 +104,16 @@ public sealed class RestManager<T> : IDisposable
                 return result.Denull("REST POST method returned null");
             default: throw new ArgumentOutOfRangeException(nameof(_request.Method), _request.Method, null);
         }
+    }
+
+    private Task<RestResponse> RunAsync()
+    {
+        return _request.Method switch
+        {
+            Method.Get  => _client.GetAsync(_request),
+            Method.Post => _client.PostAsync(_request),
+            _           => throw new ArgumentOutOfRangeException(nameof(_request.Method), _request.Method, null)
+        };
     }
 
     public void Dispose() => _client.Dispose();
