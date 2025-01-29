@@ -65,11 +65,9 @@ public sealed class RestManager : IDisposable
         IDictionary<string, string>? headerParameters = null, IDictionary<string, string?>? queryParameters = null,
         object? obj = null, JsonSerializerOptions? options = null)
     {
-        _client = new RestClient(baseUrl);
-        if (options is not null)
-        {
-            _client.UseSystemTextJson(options);
-        }
+        _client = new RestClient(baseUrl,
+            configureSerialization: options is null ? null : s => s.UseSystemTextJson(options));
+
         _request = new RestRequest(resource, method);
         if (headerParameters is not null)
         {
