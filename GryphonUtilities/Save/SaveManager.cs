@@ -3,18 +3,16 @@ using System.Text.Json;
 using GryphonUtilities.Time;
 using GryphonUtilities.Time.Json;
 
-namespace GryphonUtilities;
+namespace GryphonUtilities.Save;
 
 [PublicAPI]
-public class SaveManager<T> where T : new()
+public class SaveManager<TData> where TData : class, new()
 {
-    public T SaveData { get; private set; }
+    public TData SaveData { get; protected set; }
 
-    public SaveManager(string path, Clock? clock = null, Action? afterLoad = null, Action? beforeSave = null)
+    public SaveManager(string path, Clock? clock = null)
     {
-        _afterLoad = afterLoad;
-        _beforeSave = beforeSave;
-        SaveData = new T();
+        SaveData = new TData();
 
         _path = path;
         _locker = new object();
@@ -23,7 +21,7 @@ public class SaveManager<T> where T : new()
         _options = optionsProvider.PascalCaseOptions;
     }
 
-    public void Load()
+    public virtual void Load()
     {
         lock (_locker)
         {
@@ -32,23 +30,18 @@ public class SaveManager<T> where T : new()
                 return;
             }
             string json = File.ReadAllText(_path);
-            SaveData = JsonSerializer.Deserialize<T>(json, _options) ?? new T();
+            SaveData = JsonSerializer.Deserialize<TData>(json, _options) ?? new TData();
         }
-        _afterLoad?.Invoke();
     }
 
-    public void Save()
+    public virtual void Save()
     {
-        _beforeSave?.Invoke();
         lock (_locker)
         {
             string json = JsonSerializer.Serialize(SaveData, _options);
             File.WriteAllText(_path, json);
         }
     }
-
-    private readonly Action? _afterLoad;
-    private readonly Action? _beforeSave;
 
     private readonly JsonSerializerOptions _options;
     private readonly string _path;
