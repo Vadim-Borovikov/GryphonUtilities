@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>14.0.1</Version>
+    <Version>15.0.0-a01</Version>
     <Authors>Vadim Borovikov</Authors>
     <Company>Care Space</Company>
     <RepositoryUrl>https://github.com/Vadim-Borovikov/GryphonUtilities</RepositoryUrl>
@@ -13,6 +13,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Description>Some custom utilities set</Description>
     <Title>Gryphon Utilities</Title>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,7 +27,7 @@
     <PackageReference Include="JetBrains.Annotations" Version="2024.3.0" />
     <PackageReference Include="JoyMoe.Common.Json" Version="6.0.0" />
     <PackageReference Include="RestSharp" Version="112.1.0" />
-    <PackageReference Include="System.Text.Json" Version="9.0.1" />
+    <PackageReference Include="System.Text.Json" Version="9.0.2" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="GenerateNuspec">
