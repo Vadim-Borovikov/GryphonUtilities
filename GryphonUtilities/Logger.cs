@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 namespace GryphonUtilities;
 
 [PublicAPI]
-public sealed class Logger
+public class Logger
 {
     public Clock Clock;
 

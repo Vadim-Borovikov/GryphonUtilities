@@ -5,12 +5,16 @@ namespace GryphonUtilities.Save;
 
 [PublicAPI]
 public class SaveManager<TFinalData, TData> : SaveManager<TData>
-    where TFinalData : class, IFinalData<TData>, new()
-    where TData : class, new()
+    where TFinalData : IFinalData<TData>
+    where TData : new()
 {
     public TFinalData FinalData { get; private set; }
 
-    public SaveManager(string path, Clock? clock = null) : base(path, clock) => FinalData = new TFinalData();
+    public SaveManager(string path, TFinalData finalData, Clock? clock = null)
+        : base(path, clock)
+    {
+        FinalData = finalData;
+    }
 
     public override void Load()
     {

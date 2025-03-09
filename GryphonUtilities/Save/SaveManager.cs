@@ -6,7 +6,7 @@ using GryphonUtilities.Time.Json;
 namespace GryphonUtilities.Save;
 
 [PublicAPI]
-public class SaveManager<TData> where TData : class, new()
+public class SaveManager<TData> where TData : new()
 {
     public TData SaveData { get; protected set; }
 
