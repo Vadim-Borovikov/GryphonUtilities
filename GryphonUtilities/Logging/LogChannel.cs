@@ -49,6 +49,12 @@ public abstract class LogChannel
     {
         lock (Locker)
         {
+            string? directoryPath = Path.GetDirectoryName(FilePath);
+            if (!string.IsNullOrWhiteSpace(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
             string text = File.Exists(FilePath) ? File.ReadAllText(FilePath) : "";
             File.WriteAllText(FilePath, $"{contents}{text}", Encoding.UTF8);
         }
