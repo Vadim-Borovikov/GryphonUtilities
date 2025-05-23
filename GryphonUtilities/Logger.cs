@@ -30,11 +30,11 @@ public class Logger
 
     public void LogStartup()
     {
-        LogMessage();
-        LogTimedMessage("Startup");
+        LogMessage(null, false);
+        LogMessage("Startup");
     }
 
-    public void LogMessage(string? message = null)
+    public void LogMessage(string? message = null, bool includeTime = true)
     {
         if (File.Exists(TodayLogPath))
         {
@@ -46,10 +46,14 @@ public class Logger
                 File.Move(TodayLogPath, newPath);
             }
         }
+
+        if (includeTime)
+        {
+            message = $"{Clock.Now():HH:mm:ss}: {message}";
+        }
+
         InsertToStart(TodayLogPath, $"{message}{Environment.NewLine}", LogsLocker);
     }
-
-    public void LogTimedMessage(string? message = null) => LogMessage($"{Clock.Now():HH:mm:ss}: {message}");
 
     public void LogError(string message) => LogError(message, message);
 
@@ -72,7 +76,7 @@ public class Logger
 
     public void LogError(string title, string body)
     {
-        LogTimedMessage($"Error: {title}");
+        LogMessage($"Error: {title}");
         InsertToStart(ExceptionsLogPath,
             $"{Clock.Now():dd.MM HH:mm:ss}{Environment.NewLine}{body}{Environment.NewLine}{Environment.NewLine}",
             ExceptionsLocker);
