@@ -8,7 +8,7 @@ namespace GryphonUtilities.Save;
 [PublicAPI]
 public class SaveManager<TData> where TData : new()
 {
-    public TData SaveData { get; protected set; }
+    public TData SaveData;
 
     public SaveManager(string path, Clock? clock = null)
     {
