@@ -1,4 +1,5 @@
-﻿using GryphonUtilities.Time;
+﻿using GryphonUtilities.Logging;
+using GryphonUtilities.Time;
 using JetBrains.Annotations;
 
 namespace GryphonUtilities;
@@ -84,7 +85,7 @@ public class Invoker : IDisposable
         CancellationToken cancellationToken = default)
     {
         Task.Run(() => doWork(cancellationToken), cancellationToken)
-            .ContinueWith(logger.LogExceptionIfPresents, cancellationToken);
+            .ContinueWith(t => logger.Errors.LogExceptionIfPresents(t), cancellationToken);
     }
 
     private static Task DoAtAsync(Func<CancellationToken, Task> doWork, DateTimeFull at,
