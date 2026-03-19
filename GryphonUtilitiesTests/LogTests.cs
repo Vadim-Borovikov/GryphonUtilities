@@ -1,13 +1,15 @@
 ﻿using GryphonUtilities.Logging;
 using GryphonUtilities.Time;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using JetBrains.Annotations;
 
 namespace GryphonUtilities.Tests;
 
 [TestClass]
+[UsedImplicitly]
 public class LogTests
 {
     [TestMethod]
+    [UsedImplicitly]
     public void ExceptionTest()
     {
         Clock clock = new();

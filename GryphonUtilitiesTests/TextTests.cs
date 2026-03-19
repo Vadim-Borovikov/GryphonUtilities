@@ -1,12 +1,14 @@
 ﻿using GryphonUtilities.Helpers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using JetBrains.Annotations;
 
 namespace GryphonUtilities.Tests;
 
 [TestClass]
+[UsedImplicitly]
 public class TextTests
 {
     [TestMethod]
+    [UsedImplicitly]
     public void GetNounFormTest()
     {
         TestNounForm(false);
@@ -14,6 +16,7 @@ public class TextTests
     }
 
     [TestMethod]
+    [UsedImplicitly]
     public void FormatNumericWithNounTest()
     {
         AssertFormat("1 день", 1);

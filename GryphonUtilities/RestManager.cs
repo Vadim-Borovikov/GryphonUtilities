@@ -24,7 +24,7 @@ public sealed class RestManager : IDisposable
 
     public static async Task<T> GetAsync<T>(string baseUrl, string? resource,
         IDictionary<string, string>? headerParameters = null, IDictionary<string, string?>? queryParameters = null,
-        JsonSerializerOptions? options = null)
+        JsonSerializerOptions? options = null) where T : notnull
     {
         using (RestManager client =
                new(baseUrl, resource, Method.Get, headerParameters, queryParameters, options: options))
@@ -50,7 +50,7 @@ public sealed class RestManager : IDisposable
 
     public static async Task<T> PostAsync<T>(string baseUrl, string? resource,
         IDictionary<string, string>? headerParameters = null, object? obj = null,
-        JsonSerializerOptions? options = null)
+        JsonSerializerOptions? options = null) where T : notnull
     {
         using (RestManager client =
                new(baseUrl, resource, Method.Post, headerParameters, obj: obj, options: options))
@@ -89,7 +89,7 @@ public sealed class RestManager : IDisposable
         }
     }
 
-    private async Task<T> RunAsync<T>()
+    private async Task<T> RunAsync<T>() where T : notnull
     {
         T? result;
         switch (_request.Method)
