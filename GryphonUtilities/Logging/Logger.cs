@@ -13,15 +13,15 @@ public class Logger
         Clock = clock;
 
         Messages = new LogChannelMessages(Clock);
-        Errors = new LogChannelErrors(Clock, title => Messages.Log($"Error: {title}"));
+        Errors = new LogChannelErrors(Clock, title => Messages.Log($"Error: {title}", false));
     }
 
     public void LogStartup()
     {
         Messages.DeleteOldLogs();
 
-        Messages.Log(string.Empty, LogChannel.TimeFormat.None);
-        Messages.Log("Startup");
+        Messages.Log(string.Empty, false, LogChannel.TimeFormat.None);
+        Messages.Log("Startup", false);
     }
 
     public readonly LogChannelMessages Messages;

@@ -1,6 +1,7 @@
 ﻿using GryphonUtilities.Extensions;
 using GryphonUtilities.Time;
 using JetBrains.Annotations;
+using System.Runtime.CompilerServices;
 
 namespace GryphonUtilities.Logging;
 
@@ -17,17 +18,6 @@ public class LogChannelErrors : LogChannel
         _onErrorLogged = onErrorLogged;
     }
 
-    public override void Log(string message, TimeFormat? timeFormat = null, bool? timeOnSameLine = null)
-    {
-        Log(message, message, timeFormat, timeOnSameLine);
-    }
-
-    public void Log(string title, string body, TimeFormat? timeFormat = null, bool? timeOnSameLine = null)
-    {
-        base.Log($"{body}{Environment.NewLine}", timeFormat, timeOnSameLine);
-        _onErrorLogged?.Invoke(title);
-    }
-
     public void Log(Exception ex, TimeFormat? timeFormat = null, bool? timeOnSameLine = null)
     {
         string title = ex.Message;
@@ -36,14 +26,26 @@ public class LogChannelErrors : LogChannel
         Log(title, body, timeFormat, timeOnSameLine);
     }
 
-    public void LogExceptionIfPresents(Task task, TimeFormat? timeFormat = null, bool? timeOnSameLine = null)
+    public void Log(string title, string body, bool includeCallerInfo, TimeFormat? timeFormat = null,
+        bool? timeOnSameLine = null, [CallerMemberName] string? callerMemberName = default,
+        [CallerFilePath] string? callerFilePath = default, [CallerLineNumber] int callerLineNumber = default)
     {
-        if (task.Exception is null)
-        {
-            return;
-        }
+        CallerInfo? callerInfo =
+            includeCallerInfo ? new CallerInfo(callerMemberName ?? "", callerFilePath ?? "", callerLineNumber) : null;
+        Log(title, body, timeFormat, timeOnSameLine, callerInfo);
+    }
 
-        Log(task.Exception, timeFormat, timeOnSameLine);
+    protected override void Log(string message, TimeFormat? timeFormat = null, bool? timeOnSameLine = null,
+        CallerInfo? callerInfo = null)
+    {
+        Log(message, message, timeFormat, timeOnSameLine);
+    }
+
+    private void Log(string title, string body, TimeFormat? timeFormat = null, bool? timeOnSameLine = null,
+        CallerInfo? callerInfo = null)
+    {
+        base.Log($"{body}{Environment.NewLine}", timeFormat, timeOnSameLine, callerInfo);
+        _onErrorLogged?.Invoke(title);
     }
 
     public void DeleteLog()

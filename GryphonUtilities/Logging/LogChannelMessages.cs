@@ -12,11 +12,12 @@ public class LogChannelMessages : LogChannel
 
     public LogChannelMessages(Clock clock) : base(clock) { }
 
-    public override void Log(string message, TimeFormat? timeFormat = null, bool? timeOnSameLine = null)
+    protected  override void Log(string message, TimeFormat? timeFormat = null, bool? timeOnSameLine = null,
+        CallerInfo? callerInfo = null)
     {
         RenameLogFileIfNeeded();
 
-        base.Log(message, timeFormat, timeOnSameLine);
+        base.Log(message, timeFormat, timeOnSameLine, callerInfo);
     }
 
     private void RenameLogFileIfNeeded()

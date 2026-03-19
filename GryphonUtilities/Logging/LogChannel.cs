@@ -1,6 +1,7 @@
-﻿using System.Text;
-using GryphonUtilities.Time;
+﻿using GryphonUtilities.Time;
 using JetBrains.Annotations;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace GryphonUtilities.Logging;
 
@@ -25,7 +26,17 @@ public abstract class LogChannel
 
     protected LogChannel(Clock clock) => Clock = clock;
 
-    public virtual void Log(string message, TimeFormat? timeFormat = null, bool? timeOnSameLine = null)
+    public void Log(string message, bool includeCallerInfo, TimeFormat? timeFormat = null, bool? timeOnSameLine = null,
+        [CallerMemberName] string? callerMemberName = default, [CallerFilePath] string? callerFilePath = default,
+        [CallerLineNumber] int callerLineNumber = default)
+    {
+        CallerInfo? callerInfo =
+            includeCallerInfo ? new CallerInfo(callerMemberName ?? "", callerFilePath ?? "", callerLineNumber) : null;
+        Log(message, timeFormat, timeOnSameLine, callerInfo);
+    }
+
+    protected virtual void Log(string message, TimeFormat? timeFormat = null, bool? timeOnSameLine = null,
+        CallerInfo? callerInfo = null)
     {
         timeFormat ??= DefaultTimeFormat;
 
@@ -40,6 +51,11 @@ public abstract class LogChannel
             timePrefix = Clock.Now().ToString(format);
             timeOnSameLine ??= DefaultTimeOnSameLine;
             timePrefix += timeOnSameLine.Value ? ": " : Environment.NewLine;
+        }
+
+        if (callerInfo is not null)
+        {
+            timePrefix += callerInfo.ToString();
         }
 
         InsertToStart($"{timePrefix}{message}{Environment.NewLine}");

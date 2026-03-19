@@ -85,7 +85,7 @@ public class Invoker : IDisposable
         CancellationToken cancellationToken = default)
     {
         Task.Run(() => doWork(cancellationToken), cancellationToken)
-            .ContinueWith(t => logger.Errors.LogExceptionIfPresents(t), cancellationToken);
+            .ContinueWith(t => LogExceptionIfPresents(logger, t), cancellationToken);
     }
 
     private static Task DoAtAsync(Func<CancellationToken, Task> doWork, DateTimeFull at,
@@ -120,6 +120,16 @@ public class Invoker : IDisposable
         TimeSpan interval, CancellationToken cancellationToken)
     {
         return DoAtAsync(ct => DoPeriodicallyAsync(doWork, interval, true, ct), start, cancellationToken);
+    }
+
+    private static void LogExceptionIfPresents(Logger logger, Task task)
+    {
+        if (task.Exception is null)
+        {
+            return;
+        }
+
+        logger.Errors.Log(task.Exception);
     }
 
     private readonly CancellationTokenSource _cancellationTokenSource;
