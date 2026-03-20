@@ -51,6 +51,10 @@ public class LogChannelMessages : LogChannel
                 newLogs.Add(name);
             }
 
+            if (!Directory.Exists(MessageLogDirectory))
+            {
+                return;
+            }
             List<string> oldLogs =
                 Directory.EnumerateFiles(MessageLogDirectory).Where(f => !newLogs.Contains(f)).ToList();
             foreach (string log in oldLogs)
