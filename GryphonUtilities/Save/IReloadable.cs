@@ -1,8 +1,6 @@
 ﻿namespace GryphonUtilities.Save;
 
-public interface IStateful<TStateData>
+public interface IReloadable<in TStateData>
 {
-    TStateData? Save();
-
     void LoadFrom(TStateData? data);
 }

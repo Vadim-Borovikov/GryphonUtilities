@@ -5,7 +5,7 @@ namespace GryphonUtilities.Save;
 
 [PublicAPI]
 public class SaveManager<TState, TStateData>
-    where TState : IStateful<TStateData>
+    where TState : IStatefulReloadable<TStateData>
     where TStateData : new()
 {
     public SaveManager(string path, Clock? clock = null)
