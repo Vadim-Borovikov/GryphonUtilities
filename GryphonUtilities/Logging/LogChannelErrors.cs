@@ -38,7 +38,7 @@ public class LogChannelErrors : LogChannel
     protected override void Log(string message, TimeFormat? timeFormat = null, bool? timeOnSameLine = null,
         CallerInfo? callerInfo = null)
     {
-        Log(message, message, timeFormat, timeOnSameLine);
+        Log(message, message, timeFormat, timeOnSameLine, callerInfo);
     }
 
     private void Log(string title, string body, TimeFormat? timeFormat = null, bool? timeOnSameLine = null,

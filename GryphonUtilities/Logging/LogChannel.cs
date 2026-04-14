@@ -55,7 +55,7 @@ public abstract class LogChannel
 
         if (callerInfo is not null)
         {
-            timePrefix += callerInfo.ToString();
+            timePrefix += $"{callerInfo}{Environment.NewLine}";
         }
 
         InsertToStart($"{timePrefix}{message}{Environment.NewLine}");
