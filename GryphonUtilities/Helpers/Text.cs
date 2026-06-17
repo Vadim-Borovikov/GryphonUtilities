@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using GryphonUtilities.Extensions;
+using JetBrains.Annotations;
 
 namespace GryphonUtilities.Helpers;
 
@@ -15,17 +16,11 @@ public static class Text
         return string.IsNullOrWhiteSpace(second) ? first : $"{first} {second}";
     }
 
-    public static string FormatLines(IEnumerable<string?> lines, params object?[] args)
-    {
-        string format = JoinLines(lines);
-        return string.Format(format, args);
-    }
-
     public static string FormatNumericWithNoun(string format, uint number, string form1, string form24,
         string formAlot)
     {
         string form = GetNounForm(number, form1, form24, formAlot);
-        return string.Format(format, number, form);
+        return format.Format(number, form);
     }
 
     public static string GetNounForm(uint number, string form1, string form24, string formAlot)
@@ -42,6 +37,4 @@ public static class Text
             _ => formAlot
         };
     }
-
-    public static string JoinLines(IEnumerable<string?> lines) => string.Join(Environment.NewLine, lines);
 }

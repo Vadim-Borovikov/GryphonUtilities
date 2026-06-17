@@ -21,8 +21,9 @@ public class LogChannelErrors : LogChannel
     public void Log(Exception ex, TimeFormat? timeFormat = null, bool? timeOnSameLine = null)
     {
         string title = ex.Message;
-        string body =
-            string.Join($"{Environment.NewLine}{Environment.NewLine}", ex.FlattenAll().Select(e => e.ToString()));
+        string body = ex.FlattenAll()
+                        .Select(e => e.ToString())
+                        .Join($"{Environment.NewLine}{Environment.NewLine}");
         Log(title, body, timeFormat, timeOnSameLine);
     }
 
